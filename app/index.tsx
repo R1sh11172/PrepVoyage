@@ -16,6 +16,7 @@ export default function App() {
     try {
       const user = await register(email, password);
       Alert.alert('Success', `User registered: ${user.email}`);
+      router.replace('/(tabs)/Home'); // Redirect to Home (tabs layout)
     } catch (error) {
       Alert.alert('Error', (error as Error).message);
     }
