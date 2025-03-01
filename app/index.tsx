@@ -16,7 +16,7 @@ export default function App() {
     try {
       const user = await register(email, password);
       Alert.alert('Success', `User registered: ${user.email}`);
-      router.replace('/(tabs)/Home'); // Redirect to Home (tabs layout)
+      router.replace('/Search');
     } catch (error) {
       Alert.alert('Error', (error as Error).message);
     }
@@ -26,7 +26,7 @@ export default function App() {
     try {
       const user = await login(email, password);
       Alert.alert('Success', `Welcome back: ${user.email}`);
-      router.replace('/(tabs)/Home'); // Redirect to Home (tabs layout)
+      router.replace('/Search');
     } catch (error) {
       Alert.alert('Error', (error as Error).message);
     }
