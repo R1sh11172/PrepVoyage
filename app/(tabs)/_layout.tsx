@@ -45,6 +45,16 @@ export default function TabLayout() {
           ),
         }}
       />
+
+    <Tabs.Screen
+        name="SearchScreen"
+        options={{
+          title: "Search",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="house.fill" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
