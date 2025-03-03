@@ -22,14 +22,52 @@ import {
 } from "firebase/firestore";
 import WeatherWidget from "@/components/WeatherWidget";
 import PackingListItem from "@/components/PackingListItem";
+import { db } from "@/firebaseConfig";
 
 export default function PackingList() {
+  const location = "georgia";
+  const [packingList, setPackingList] = useState<Set<string>>(new Set());
+
+  async function fetchListBasedOnWeather(location: string) {
+    const weathers = await fetchWeatherBasedOnLocation(location);
+    if (weathers) {
+      const ref = doc(db, "testData", "weather");
+      const docSnap = await getDoc(ref);
+      if (docSnap.exists()) {
+        const lists = docSnap.data();
+        for (const weather of weathers) {
+          if (lists[weather]) {
+            setPackingList((prev) => new Set([...prev, ...lists[weather]]));
+          }
+        }
+      }
+    }
+  }
+
+  async function fetchWeatherBasedOnLocation(location: string) {
+    const ref = doc(db, "testData", "country");
+    const docSnap = await getDoc(ref);
+    if (docSnap.exists()) {
+      if (docSnap.data()[location]) {
+        return docSnap.data()[location] as string[];
+      }
+    }
+
+    return [];
+  }
+
+  useEffect(() => {
+    fetchListBasedOnWeather(location);
+  }, []);
+
   return (
     <ScrollView style={styles.scrollContainer}>
       <WeatherWidget />
       <Text style={styles.title}>Location List ✈️</Text>
-      <View style={styles.container}>
-        <PackingListItem item={"Item 1"} />
+      <View style={[styles.container, styles.packingListContainer]}>
+        {[...packingList].map((item, index) => (
+          <PackingListItem key={index} item={item} />
+        ))}
       </View>
       <TouchableOpacity style={styles.addButton} onPress={() => {}}>
         <Text style={styles.addButtonText}>+</Text>
@@ -75,5 +113,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 24,
     textAlign: "center",
+  },
+  packingListContainer: {
+    flexDirection: "column",
+    display: "flex",
+    gap: 10,
   },
 });
