@@ -29,7 +29,6 @@ export default function PackingList() {
   const { destination, startDate, endDate, activities } =
     useLocalSearchParams();
   const [packingList, setPackingList] = useState<Set<string>>(new Set());
-  console.log(destination);
 
   async function fetchListBasedOnWeather(location: string) {
     const loc = location.toLowerCase();
@@ -68,10 +67,18 @@ export default function PackingList() {
   return (
     <ScrollView style={styles.scrollContainer}>
       <WeatherWidget />
-      <Text style={styles.title}>Location List ✈️</Text>
+      <Text style={styles.title}>{destination} List ✈️</Text>
       <View style={[styles.container, styles.packingListContainer]}>
         {[...packingList].map((item, index) => (
-          <PackingListItem key={index} item={item} />
+          <PackingListItem
+            key={index}
+            item={item}
+            onRemove={() => {
+              setPackingList(
+                (prev) => new Set([...prev].filter((i) => i !== item))
+              );
+            }}
+          />
         ))}
       </View>
       <TouchableOpacity style={styles.addButton} onPress={() => {}}>
