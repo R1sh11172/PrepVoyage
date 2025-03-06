@@ -1,10 +1,17 @@
 import React, { useState } from "react";
-import { 
-  View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Dimensions 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router"; // Using useRouter for navigation
+import { useLocalSearchParams } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 
@@ -14,6 +21,7 @@ const SelectDatesScreen = () => {
   const [endDate, setEndDate] = useState("");
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
+  const { destination } = useLocalSearchParams();
 
   const formatDate = (date) => {
     return date.toLocaleDateString("en-US", {
@@ -39,24 +47,29 @@ const SelectDatesScreen = () => {
       <View style={styles.inputWrapper}>
         <Text style={styles.label}>Start Date</Text>
         <View style={styles.inputContainer}>
-          <FontAwesome name="calendar" size={22} color="#F87171" style={styles.icon} />
-          <TextInput 
-            style={styles.textInput} 
-            placeholder="MM/DD/YYYY" 
-            placeholderTextColor="#6B7280" 
-            value={startDate} 
-            editable={false} 
+          <FontAwesome
+            name="calendar"
+            size={22}
+            color="#F87171"
+            style={styles.icon}
+          />
+          <TextInput
+            style={styles.textInput}
+            placeholder="MM/DD/YYYY"
+            placeholderTextColor="#6B7280"
+            value={startDate}
+            editable={false}
           />
           <TouchableOpacity onPress={() => setShowStartPicker(true)}>
             <FontAwesome name="calendar" size={22} color="transparent" />
           </TouchableOpacity>
         </View>
         {showStartPicker && (
-          <DateTimePicker 
-            value={startDate ? new Date(startDate) : new Date()} 
-            mode="date" 
-            display="default" 
-            onChange={onChangeDate(setStartDate, setShowStartPicker)} 
+          <DateTimePicker
+            value={startDate ? new Date(startDate) : new Date()}
+            mode="date"
+            display="default"
+            onChange={onChangeDate(setStartDate, setShowStartPicker)}
           />
         )}
       </View>
@@ -65,52 +78,68 @@ const SelectDatesScreen = () => {
       <View style={styles.inputWrapper}>
         <Text style={styles.label}>End Date</Text>
         <View style={styles.inputContainer}>
-          <FontAwesome name="calendar" size={22} color="#F87171" style={styles.icon} />
-          <TextInput 
-            style={styles.textInput} 
-            placeholder="MM/DD/YYYY" 
-            placeholderTextColor="#6B7280" 
-            value={endDate} 
-            editable={false} 
+          <FontAwesome
+            name="calendar"
+            size={22}
+            color="#F87171"
+            style={styles.icon}
+          />
+          <TextInput
+            style={styles.textInput}
+            placeholder="MM/DD/YYYY"
+            placeholderTextColor="#6B7280"
+            value={endDate}
+            editable={false}
           />
           <TouchableOpacity onPress={() => setShowEndPicker(true)}>
             <FontAwesome name="calendar" size={22} color="transparent" />
           </TouchableOpacity>
         </View>
         {showEndPicker && (
-          <DateTimePicker 
-            value={endDate ? new Date(endDate) : new Date()} 
-            mode="date" 
-            display="default" 
-            onChange={onChangeDate(setEndDate, setShowEndPicker)} 
+          <DateTimePicker
+            value={endDate ? new Date(endDate) : new Date()}
+            mode="date"
+            display="default"
+            onChange={onChangeDate(setEndDate, setShowEndPicker)}
           />
         )}
       </View>
 
       {/* Progress Bar */}
       <View style={styles.progressBarContainer}>
-        <View style={[styles.progressBar, { width: "50%" }]} /> 
+        <View style={[styles.progressBar, { width: "50%" }]} />
       </View>
 
       {/* Back & Next Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <Text style={styles.buttonText}>Back</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.nextButton} onPress={() => router.push("/Activities")}>
+        <TouchableOpacity
+          style={styles.nextButton}
+          onPress={() =>
+            router.push({
+              pathname: "/Activities",
+              params: { destination, startDate, endDate },
+            })
+          }
+        >
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
     paddingHorizontal: 24,
-    paddingTop: height * 0.12, 
+    paddingTop: height * 0.12,
   },
   title: {
     textAlign: "center",
@@ -152,7 +181,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 4,
     backgroundColor: "#E5E7EB",
-    marginTop: height * 0.28, 
+    marginTop: height * 0.28,
     borderRadius: 2,
     overflow: "hidden",
   },
