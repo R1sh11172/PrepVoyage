@@ -71,7 +71,6 @@ export default function PackingList() {
     );
     const docSnap = await getDoc(ref);
     if (docSnap.exists()) {
-      console.log("here");
       if (docSnap.data()) {
         setPackingList(new Set(docSnap.data().list));
         return true;
