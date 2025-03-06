@@ -17,8 +17,10 @@ import {
   doc,
   setDoc,
   getDoc,
+  getDocs,
   updateDoc,
   arrayUnion,
+  collection,
 } from "firebase/firestore";
 import WeatherWidget from "@/components/WeatherWidget";
 import PackingListItem from "@/components/PackingListItem";
@@ -29,10 +31,10 @@ export default function PackingList() {
   const { destination, startDate, endDate, activities } =
     useLocalSearchParams();
   const [packingList, setPackingList] = useState<Set<string>>(new Set());
+  const [initialized, setInitialized] = useState(false);
 
   async function fetchListBasedOnWeather(location: string) {
-    const loc = location.toLowerCase();
-    const weathers = await fetchWeatherBasedOnLocation(loc);
+    const weathers = await fetchWeatherBasedOnLocation(location);
     if (weathers) {
       const ref = doc(db, "testData", "weather");
       const docSnap = await getDoc(ref);
@@ -50,19 +52,62 @@ export default function PackingList() {
   async function fetchWeatherBasedOnLocation(location: string) {
     const ref = doc(db, "testData", "destinations");
     const docSnap = await getDoc(ref);
-    const loc = location.toLowerCase();
     if (docSnap.exists()) {
-      if (docSnap.data()[loc]) {
-        return docSnap.data()[loc] as string[];
+      if (docSnap.data()[location]) {
+        return docSnap.data()[location] as string[];
       }
     }
 
     return [];
   }
 
+  const getUserPackingList = async (destination: string) => {
+    const ref = doc(
+      db,
+      "testData",
+      "users",
+      getAuth().currentUser.uid,
+      destination.toLowerCase()
+    );
+    const docSnap = await getDoc(ref);
+    if (docSnap.exists()) {
+      console.log("here");
+      if (docSnap.data()) {
+        setPackingList(new Set(docSnap.data().list));
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   useEffect(() => {
-    fetchListBasedOnWeather(destination);
+    const fetchList = async () => {
+      const userListExists = await getUserPackingList(
+        destination.toLowerCase()
+      );
+
+      if (!userListExists) {
+        fetchListBasedOnWeather(destination.toLowerCase());
+      }
+    };
+
+    fetchList();
+    setInitialized(true);
   }, []);
+
+  useEffect(() => {
+    if (initialized) {
+      const ref = doc(
+        db,
+        "testData",
+        "users",
+        getAuth().currentUser.uid,
+        destination.toLowerCase()
+      );
+      setDoc(ref, { list: [...packingList] });
+    }
+  }, [packingList]);
 
   return (
     <ScrollView style={styles.scrollContainer}>
