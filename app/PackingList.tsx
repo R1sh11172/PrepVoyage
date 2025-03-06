@@ -33,9 +33,36 @@ export default function PackingList() {
     return false;
   };
 
+  const getWeatherBasedOnLocation = async (location: string) => {
+    const ref = doc(db, "testData", "destinations");
+    const docSnap = await getDoc(ref);
+    if (docSnap.exists() && docSnap.data() && docSnap.data()[location]) {
+      return docSnap.data()[location];
+    }
+
+    return []
+  }
+
+  const getListBasedOnWeather = async (location:string) => {
+    const weathers = await getWeatherBasedOnLocation(location);
+    const ref = doc(db, "testData", "weather");
+    const docSnap = await getDoc(ref);
+
+    if (docSnap.exists() && docSnap.data()) {
+      for (const weather of weathers) {
+        if (docSnap.data()[weather]) {
+          setPackingList((prev) => new Set([...prev, ...docSnap.data()[weather]]));
+        }
+      }
+    }
+  }
+
   useEffect(() => {
     const fetchList = async () => {
-      await getUserPackingList(destination.toLowerCase());
+      const userListExists = await getUserPackingList(destination.toLowerCase());
+      if (!userListExists) {
+        getListBasedOnWeather(destination.toLowerCase())
+      }
     };
     fetchList();
     setInitialized(true);
