@@ -1,28 +1,51 @@
 import React, { useState, useEffect } from "react";
-import { 
-  View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator, Dimensions, Keyboard, TouchableWithoutFeedback 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  Dimensions,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Search, ChevronRight } from "lucide-react-native";
 import { useRouter } from "expo-router"; // Import useRouter
 
 const { width, height } = Dimensions.get("window");
 
-const defaultDestinations = ["Cancun", "Rome", "Lima", "Tokyo", "Honolulu", "Paris", "Sydney", "New York", "Barcelona", "Dubai"];
+const defaultDestinations = [
+  "Cancun",
+  "Rome",
+  "Lima",
+  "Tokyo",
+  "Honolulu",
+  "Paris",
+  "Sydney",
+  "New York",
+  "Barcelona",
+  "Dubai",
+];
 const SearchScreen = () => {
   const router = useRouter(); // Initialize useRouter
-  const [selectedDestination, setSelectedDestination] = useState<string | null>(null);
+  const [selectedDestination, setSelectedDestination] = useState<string | null>(
+    null
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [locations, setLocations] = useState<string[]>(defaultDestinations);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0.1);
   const [showDropdown, setShowDropdown] = useState(false);
-
   useEffect(() => {
     if (searchQuery.length > 2) {
       setLoading(true);
-      fetch(`https://api.locationiq.com/v1/autocomplete?key=pk.1e0d88588ac16b89ac1c0a31566b040f&q=${searchQuery}&limit=5&dedupe=1&`)
-        .then(response => response.json())
-        .then(data => {
+      fetch(
+        `https://api.locationiq.com/v1/autocomplete?key=pk.1e0d88588ac16b89ac1c0a31566b040f&q=${searchQuery}&limit=5&dedupe=1&`
+      )
+        .then((response) => response.json())
+        .then((data) => {
           setLocations(data.map((loc: any) => loc.display_name));
           setLoading(false);
         })
@@ -34,11 +57,14 @@ const SearchScreen = () => {
 
   const handleNext = () => {
     setProgress(0.3);
-    router.push("/Dates"); // Navigate to the next screen using useRouter
+    router.push({
+      pathname: "/Dates",
+      params: { destination: selectedDestination },
+    }); // Navigate to the next screen using useRouter
   };
 
   return (
-    <TouchableWithoutFeedback 
+    <TouchableWithoutFeedback
       onPress={() => {
         Keyboard.dismiss();
         setShowDropdown(false);
@@ -50,10 +76,10 @@ const SearchScreen = () => {
         {/* Search Bar */}
         <View style={styles.searchBarContainer}>
           <View style={styles.searchBar}>
-            <TextInput 
-              placeholder="Search" 
-              style={styles.searchInput} 
-              placeholderTextColor="#6B7280" 
+            <TextInput
+              placeholder="Search"
+              style={styles.searchInput}
+              placeholderTextColor="#6B7280"
               value={searchQuery}
               onChangeText={(text) => {
                 setSearchQuery(text);
@@ -92,9 +118,9 @@ const SearchScreen = () => {
         {/* Suggested Popular Destinations */}
         <View style={styles.destinationContainer}>
           {defaultDestinations.map((destination) => (
-            <TouchableOpacity 
-              key={destination} 
-              style={styles.destinationButton} 
+            <TouchableOpacity
+              key={destination}
+              style={styles.destinationButton}
               onPress={() => {
                 setSelectedDestination(destination);
                 setSearchQuery(destination);

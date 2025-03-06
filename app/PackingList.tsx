@@ -23,13 +23,17 @@ import {
 import WeatherWidget from "@/components/WeatherWidget";
 import PackingListItem from "@/components/PackingListItem";
 import { db } from "@/firebaseConfig";
+import { useLocalSearchParams } from "expo-router";
 
 export default function PackingList() {
-  const location = "georgia";
+  const { destination, startDate, endDate, activities } =
+    useLocalSearchParams();
   const [packingList, setPackingList] = useState<Set<string>>(new Set());
+  console.log(destination);
 
   async function fetchListBasedOnWeather(location: string) {
-    const weathers = await fetchWeatherBasedOnLocation(location);
+    const loc = location.toLowerCase();
+    const weathers = await fetchWeatherBasedOnLocation(loc);
     if (weathers) {
       const ref = doc(db, "testData", "weather");
       const docSnap = await getDoc(ref);
@@ -45,11 +49,12 @@ export default function PackingList() {
   }
 
   async function fetchWeatherBasedOnLocation(location: string) {
-    const ref = doc(db, "testData", "country");
+    const ref = doc(db, "testData", "destinations");
     const docSnap = await getDoc(ref);
+    const loc = location.toLowerCase();
     if (docSnap.exists()) {
-      if (docSnap.data()[location]) {
-        return docSnap.data()[location] as string[];
+      if (docSnap.data()[loc]) {
+        return docSnap.data()[loc] as string[];
       }
     }
 
@@ -57,7 +62,7 @@ export default function PackingList() {
   }
 
   useEffect(() => {
-    fetchListBasedOnWeather(location);
+    fetchListBasedOnWeather(destination);
   }, []);
 
   return (

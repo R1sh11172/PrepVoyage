@@ -1,26 +1,38 @@
 import React, { useState } from "react";
-import { 
-  View, Text, TouchableOpacity, StyleSheet, Dimensions, ScrollView 
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
 } from "react-native";
-import { useRouter } from "expo-router"; // Using useRouter for navigation
+import { useLocalSearchParams, useRouter } from "expo-router"; // Using useRouter for navigation
 
 const { width, height } = Dimensions.get("window");
 
 const activitiesList = [
-  "Food", "Relaxation", "Tours", 
-  "Landmarks", "Bars", "Beaches", 
-  "Nature", "Hidden Gems"
+  "Food",
+  "Relaxation",
+  "Tours",
+  "Landmarks",
+  "Bars",
+  "Beaches",
+  "Nature",
+  "Hidden Gems",
 ];
 
 const ActivitiesScreen = () => {
   const router = useRouter();
   const [selectedActivities, setSelectedActivities] = useState([]);
+  const { destination, startDate, endDate } = useLocalSearchParams();
 
   const toggleSelection = (activity) => {
-    setSelectedActivities((prev) =>
-      prev.includes(activity)
-        ? prev.filter((item) => item !== activity) // Deselect if already selected
-        : [...prev, activity] // Select if not already selected
+    setSelectedActivities(
+      (prev) =>
+        prev.includes(activity)
+          ? prev.filter((item) => item !== activity) // Deselect if already selected
+          : [...prev, activity] // Select if not already selected
     );
   };
 
@@ -36,14 +48,16 @@ const ActivitiesScreen = () => {
             key={activity}
             style={[
               styles.activityButton,
-              selectedActivities.includes(activity) && styles.selectedActivityButton,
+              selectedActivities.includes(activity) &&
+                styles.selectedActivityButton,
             ]}
             onPress={() => toggleSelection(activity)}
           >
             <Text
               style={[
                 styles.activityText,
-                selectedActivities.includes(activity) && styles.selectedActivityText,
+                selectedActivities.includes(activity) &&
+                  styles.selectedActivityText,
               ]}
             >
               {activity}
@@ -54,21 +68,37 @@ const ActivitiesScreen = () => {
 
       {/* Progress Bar */}
       <View style={styles.progressBarContainer}>
-        <View style={[styles.progressBar, { width: "75%" }]} /> 
+        <View style={[styles.progressBar, { width: "75%" }]} />
       </View>
 
       {/* Back & Next Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <Text style={styles.buttonText}>Back</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.nextButton} onPress={() => router.push("/PackingList")}>
+        <TouchableOpacity
+          style={styles.nextButton}
+          onPress={() =>
+            router.push({
+              pathname: "/PackingList",
+              params: {
+                destination,
+                startDate,
+                endDate,
+                activities: selectedActivities,
+              },
+            })
+          }
+        >
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

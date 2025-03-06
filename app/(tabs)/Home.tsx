@@ -26,7 +26,6 @@ export default function HomeScreen({ navigation }) {
       setDate(formatDate(selectedDate));
     }
   };
-
   return (
     <ScrollView style={styles.scrollContainer}>
       <Text style={styles.title}>PrepVoyage ✈️</Text>
@@ -105,7 +104,9 @@ export default function HomeScreen({ navigation }) {
       {/* NEXT Button */}
       <TouchableOpacity
         style={styles.nextButton}
-        onPress={() => navigation.navigate("PackingList")}
+        onPress={() =>
+          navigation.navigate("PackingList", { location: location })
+        }
       >
         <Text style={styles.nextButtonText}>Next</Text>
       </TouchableOpacity>
