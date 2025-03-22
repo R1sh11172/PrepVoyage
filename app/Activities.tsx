@@ -83,7 +83,7 @@ const ActivitiesScreen = () => {
           style={styles.nextButton}
           onPress={() =>
             router.push({
-              pathname: "/PackingList",
+              pathname: "/AdditionalInfo",
               params: {
                 destination,
                 startDate,

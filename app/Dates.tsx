@@ -7,34 +7,40 @@ import {
   StyleSheet,
   ScrollView,
   Dimensions,
+  Platform,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { FontAwesome } from "@expo/vector-icons";
-import { useRouter } from "expo-router"; // Using useRouter for navigation
+import { useRouter } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 
 const SelectDatesScreen = () => {
   const router = useRouter();
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
   const { destination } = useLocalSearchParams();
 
-  const formatDate = (date) => {
-    return date.toLocaleDateString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-    }); // Format MM/DD/YYYY
+  const formatDate = (date: Date | null) => {
+    return date
+      ? date.toLocaleDateString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+        })
+      : "";
   };
 
-  const onChangeDate = (setDate, setShowPicker) => (event, selectedDate) => {
-    setShowPicker(false);
+  const onChangeDate = (
+    setDate: React.Dispatch<React.SetStateAction<Date | null>>,
+    setShowPicker: React.Dispatch<React.SetStateAction<boolean>>
+  ) => (event: any, selectedDate?: Date) => {
+    setShowPicker(Platform.OS === "ios"); // Keep the picker open for iOS until dismissed manually
     if (selectedDate) {
-      setDate(formatDate(selectedDate));
+      setDate(selectedDate);
     }
   };
 
@@ -46,27 +52,22 @@ const SelectDatesScreen = () => {
       {/* Start Date */}
       <View style={styles.inputWrapper}>
         <Text style={styles.label}>Start Date</Text>
-        <View style={styles.inputContainer}>
-          <FontAwesome
-            name="calendar"
-            size={22}
-            color="#F87171"
-            style={styles.icon}
-          />
+        <TouchableOpacity
+          style={styles.inputContainer}
+          onPress={() => setShowStartPicker(true)}
+        >
+          <FontAwesome name="calendar" size={22} color="#F87171" style={styles.icon} />
           <TextInput
             style={styles.textInput}
             placeholder="MM/DD/YYYY"
             placeholderTextColor="#6B7280"
-            value={startDate}
+            value={formatDate(startDate)}
             editable={false}
           />
-          <TouchableOpacity onPress={() => setShowStartPicker(true)}>
-            <FontAwesome name="calendar" size={22} color="transparent" />
-          </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
         {showStartPicker && (
           <DateTimePicker
-            value={startDate ? new Date(startDate) : new Date()}
+            value={startDate || new Date()}
             mode="date"
             display="default"
             onChange={onChangeDate(setStartDate, setShowStartPicker)}
@@ -77,27 +78,22 @@ const SelectDatesScreen = () => {
       {/* End Date */}
       <View style={styles.inputWrapper}>
         <Text style={styles.label}>End Date</Text>
-        <View style={styles.inputContainer}>
-          <FontAwesome
-            name="calendar"
-            size={22}
-            color="#F87171"
-            style={styles.icon}
-          />
+        <TouchableOpacity
+          style={styles.inputContainer}
+          onPress={() => setShowEndPicker(true)}
+        >
+          <FontAwesome name="calendar" size={22} color="#F87171" style={styles.icon} />
           <TextInput
             style={styles.textInput}
             placeholder="MM/DD/YYYY"
             placeholderTextColor="#6B7280"
-            value={endDate}
+            value={formatDate(endDate)}
             editable={false}
           />
-          <TouchableOpacity onPress={() => setShowEndPicker(true)}>
-            <FontAwesome name="calendar" size={22} color="transparent" />
-          </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
         {showEndPicker && (
           <DateTimePicker
-            value={endDate ? new Date(endDate) : new Date()}
+            value={endDate || new Date()}
             mode="date"
             display="default"
             onChange={onChangeDate(setEndDate, setShowEndPicker)}
@@ -112,20 +108,18 @@ const SelectDatesScreen = () => {
 
       {/* Back & Next Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.buttonText}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.nextButton}
+          style={[styles.nextButton, (!startDate || !endDate) && styles.disabledButton]}
           onPress={() =>
             router.push({
               pathname: "/Activities",
-              params: { destination, startDate, endDate },
+              params: { destination, startDate: formatDate(startDate), endDate: formatDate(endDate) },
             })
           }
+          disabled={!startDate || !endDate}
         >
           <Text style={styles.buttonText}>Next</Text>
         </TouchableOpacity>
@@ -206,6 +200,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     paddingVertical: 12,
     borderRadius: 25,
+  },
+  disabledButton: {
+    backgroundColor: "#A7A7A7",
   },
   buttonText: {
     color: "white",

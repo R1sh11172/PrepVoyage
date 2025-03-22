@@ -26,7 +26,7 @@ export default function App() {
     try {
       const user = await login(email, password);
       Alert.alert('Success', `Welcome back: ${user.email}`);
-      router.replace('/Search');
+      router.replace('/Home');
     } catch (error) {
       Alert.alert('Error', (error as Error).message);
     }
