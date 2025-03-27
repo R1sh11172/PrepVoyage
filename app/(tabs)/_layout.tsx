@@ -14,47 +14,30 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: "absolute",
-          },
-          default: {},
-        }),
+        // tabBarBackground: undefined,
+        tabBarStyle: {
+          backgroundColor: "#009688",
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+          height: 70,
+          position: "absolute",
+        },
+        tabBarActiveTintColor: "#FFFFFF",
+        tabBarInactiveTintColor: "#B2DFDB"
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="Home"
         options={{
           title: "Home",
+
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="house.fill" color={color} />
           ),
         }}
       />
-      <Tabs.Screen
-        name="PackingList"
-        options={{
-          title: "Packing List",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-          name="SearchScreen"
-          options={{
-            title: "Search",
-            tabBarIcon: ({ color }) => (
-              <IconSymbol size={28} name="house.fill" color={color} />
-            ),
-          }}
-        />
       <Tabs.Screen
           name="Explore"
           options={{
@@ -64,7 +47,17 @@ export default function TabLayout() {
             ),
           }}
         />
+        <Tabs.Screen
+          name="Account"
+          options={{
+            title: "Account",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={28} name="person.crop.circle.fill" color={color} />
+            ),
+          }}
+        />
     </Tabs>
+    
 
   );
 }
