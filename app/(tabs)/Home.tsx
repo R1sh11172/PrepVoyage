@@ -13,6 +13,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { db } from "@/firebaseConfig";
 import { fetchDestinationImage } from "@/services/imageService"; // Import Unsplash function
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function MyTripsScreen() {
   const userId = getAuth().currentUser?.uid;
@@ -82,7 +83,7 @@ export default function MyTripsScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>My Trips</Text>
 
       {loading ? (
@@ -96,12 +97,12 @@ export default function MyTripsScreen() {
         <Text style={styles.generateText}>Generate</Text>
         <Text style={styles.plusSymbol}>+</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 20 },
+  container: { flex: 1, backgroundColor: "#fff", padding: 20, marginBottom: 20},
   title: { fontSize: 28, fontWeight: "bold", color: "#00796B", marginBottom: 20 },
   tripCard: { marginBottom: 15, borderRadius: 15, overflow: "hidden" },
   tripImage: { width: "100%", height: 120, justifyContent: "flex-end" },
