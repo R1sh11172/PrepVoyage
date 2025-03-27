@@ -1,23 +1,26 @@
-import { useState } from "react";
 import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import { IconSymbol } from "./ui/IconSymbol";
+
 export default function PackingListItem({
   item,
+  checked,
+  onToggle,
   onRemove,
 }: {
   item: string;
+  checked: boolean;
+  onToggle: () => void;
   onRemove: () => void;
 }) {
-  const [checked, setChecked] = useState(false);
   return (
     <View style={styles.item}>
       <TouchableOpacity
         style={[styles.checkbox, checked && styles.checked]}
-        onPress={() => {
-          setChecked((prev) => !prev);
-        }}
+        onPress={onToggle}
       />
-      <Text>{item}</Text>
+      <Text style={[styles.itemText, checked && styles.strikethrough]}>
+        {item}
+      </Text>
       <TouchableOpacity onPress={onRemove}>
         <IconSymbol name="xmark" size={20} color="#FF6F61" />
       </TouchableOpacity>
@@ -30,6 +33,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 8,
   },
   checkbox: {
     borderColor: "black",
@@ -37,12 +41,17 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 5,
-  },
-  xIcon: {
-    width: 20,
-    height: 20,
+    marginRight: 10,
   },
   checked: {
     backgroundColor: "#FFB74D",
+  },
+  itemText: {
+    flex: 1,
+    fontSize: 16,
+  },
+  strikethrough: {
+    textDecorationLine: "line-through",
+    color: "gray",
   },
 });
