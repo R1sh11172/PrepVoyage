@@ -23,7 +23,7 @@ export default function PackingList() {
   const router = useRouter();
   const { tripId, destination, startDate, endDate, activities, additionalInfo } = useLocalSearchParams();
   // Expect packingList to be an object with category keys and array of strings as values.
-  const [packingList, setPackingList] = useState<{ [category: string]: string[] }>({});
+  const [packingList, setPackingList] = useState<{ [category: string]: { name: string, checked: boolean }[] }>({});
   const [loading, setLoading] = useState(true);
   const [newItem, setNewItem] = useState("");
   const [newCategory, setNewCategory] = useState("");
@@ -33,10 +33,26 @@ export default function PackingList() {
   useEffect(() => {
     const fetchPackingList = async () => {
       try {
-        const listRef = doc(db, users/${userId}/packingLists/${tripId});
+        const listRef = doc(db, `users/${userId}/packingLists/${tripId}`);
         const docSnap = await getDoc(listRef);
         if (docSnap.exists()) {
-          setPackingList(docSnap.data())
+          const data = docSnap.data();
+        
+          // Migrate old string[] format to new { name, checked }[] format
+          const migratedList: { [category: string]: { name: string; checked: boolean }[] } = {};
+          Object.entries(data).forEach(([category, items]) => {
+            if (Array.isArray(items)) {
+              if (typeof items[0] === "string") {
+                // Old format
+                migratedList[category] = items.map((item) => ({ name: item, checked: false }));
+              } else {
+                // New format
+                migratedList[category] = items as { name: string; checked: boolean }[];
+              }
+            }
+          });
+        
+          setPackingList(migratedList);
         } else {
 
           const geminiResponse = await generatePackingList(
@@ -49,16 +65,16 @@ export default function PackingList() {
   
           // Validate and normalize the response.
           // For each category, ensure we have an array of strings.
-          const validatedList: { [category: string]: string[] } = {};
+          const validatedList: { [category: string]: { name: string; checked: boolean }[] } = {};
           Object.entries(geminiResponse).forEach(([category, items]) => {
             if (Array.isArray(items)) {
-              validatedList[category] = items;
+              validatedList[category] = items.map((item) => ({ name: item, checked: false }));
             } else if (typeof items === "string") {
-              // If it's a string, try to split it into an array.
               validatedList[category] = items
                 .split(/\r?\n/)
                 .map((item) => item.trim())
-                .filter((item) => item.length > 0);
+                .filter((item) => item.length > 0)
+                .map((item) => ({ name: item, checked: false }));
             } else {
               validatedList[category] = [];
             }
@@ -78,10 +94,20 @@ export default function PackingList() {
 
   const addItem = () => {
     if (newCategory.trim() && newItem.trim()) {
-      setPackingList((prev) => ({
-        ...prev,
-        [newCategory]: [...(prev[newCategory] || []), newItem.trim()],
-      }));
+      setPackingList((prev) => {
+        const categoryInput = newCategory.trim();
+        const existingCategoryKey = Object.keys(prev).find(
+          (key) => key.toLowerCase() === categoryInput.toLowerCase()
+        );
+  
+        const targetCategory = existingCategoryKey || categoryInput;
+  
+        return {
+          ...prev,
+          [targetCategory]: [...(prev[existingCategoryKey] || []), { name: newItem.trim(), checked: false }],
+        };
+      });
+  
       setNewCategory("");
       setNewItem("");
     }
@@ -105,16 +131,16 @@ export default function PackingList() {
     try {
       let finalTripId = tripId ? tripId : generateRandomTripId(); // Generate if empty
 
-      const listRef = doc(db, users/${userId}/packingLists/${finalTripId});
+      const listRef = doc(db, `users/${userId}/packingLists/${finalTripId}`);
       await setDoc(listRef, packingList);
 
-      const tripRef = doc(db, users/${userId}/trips/${finalTripId});
+      const tripRef = doc(db, `users/${userId}/trips/${finalTripId}`);
       await setDoc(tripRef, {
         id: finalTripId,
         destination,
         startDate,
         endDate,
-        imageUrl: https://source.unsplash.com/featured/?${destination}, // Auto-generate an image
+        imageUrl: `https://source.unsplash.com/featured/?${destination}`, // Auto-generate an image
       });
 
       router.push({
@@ -145,7 +171,16 @@ export default function PackingList() {
                 items.map((item, i) => (
                   <PackingListItem
                     key={i}
-                    item={item}
+                    item={item.name}
+                    checked={item.checked}
+                    onToggle={() => {
+                      setPackingList((prev) => ({
+                        ...prev,
+                        [category]: prev[category].map((el, j) =>
+                          j === i ? { ...el, checked: !el.checked } : el
+                        ),
+                      }));
+                    }}
                     onRemove={() =>
                       setPackingList((prev) => ({
                         ...prev,
