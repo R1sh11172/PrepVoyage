@@ -33,7 +33,7 @@ export default function PackingList() {
   useEffect(() => {
     const fetchPackingList = async () => {
       try {
-        const listRef = doc(db, `users/${userId}/packingLists/${tripId}`);
+        const listRef = doc(db, users/${userId}/packingLists/${tripId});
         const docSnap = await getDoc(listRef);
         if (docSnap.exists()) {
           setPackingList(docSnap.data())
@@ -105,16 +105,16 @@ export default function PackingList() {
     try {
       let finalTripId = tripId ? tripId : generateRandomTripId(); // Generate if empty
 
-      const listRef = doc(db, `users/${userId}/packingLists/${finalTripId}`);
+      const listRef = doc(db, users/${userId}/packingLists/${finalTripId});
       await setDoc(listRef, packingList);
 
-      const tripRef = doc(db, `users/${userId}/trips/${finalTripId}`);
+      const tripRef = doc(db, users/${userId}/trips/${finalTripId});
       await setDoc(tripRef, {
         id: finalTripId,
         destination,
         startDate,
         endDate,
-        imageUrl: `https://source.unsplash.com/featured/?${destination}`, // Auto-generate an image
+        imageUrl: https://source.unsplash.com/featured/?${destination}, // Auto-generate an image
       });
 
       router.push({
