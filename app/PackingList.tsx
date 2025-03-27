@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
+  Alert,
 } from "react-native";
 import WeatherWidget from "@/components/WeatherWidget";
 import PackingListItem from "@/components/PackingListItem";
@@ -15,7 +16,7 @@ import { generatePackingList } from "@/services/geminiService";
 import { useRouter } from "expo-router";
 
 import { getAuth } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/firebaseConfig";
 
 
@@ -154,9 +155,26 @@ export default function PackingList() {
     }
   };
 
+  const deletePackingList = async () => {
+    try {
+      const listRef = doc(db, `users/${userId}/packingLists/${tripId}`);
+      const tripRef = doc(db, `users/${userId}/trips/${tripId}`);
+  
+      await deleteDoc(listRef);
+      await deleteDoc(tripRef);
+  
+      alert("Trip and packing list deleted.");
+      router.push("/Home");
+    } catch (error) {
+      console.error("Error deleting trip:", error);
+      alert("Failed to delete the trip.");
+    }
+  };
 
   return (
-    <ScrollView style={styles.scrollContainer}>
+    <ScrollView 
+      style={styles.scrollContainer}
+    >
       {/* <WeatherWidget /> */}
       <Text style={styles.title}>{getSubstringBeforeComma(destination)} Packing List</Text>
 
@@ -215,6 +233,22 @@ export default function PackingList() {
       <TouchableOpacity style={styles.saveButton} onPress={savePackingList}>
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => {
+          Alert.alert(
+            "Delete Trip?",
+            "Are you sure you want to delete this trip and its packing list? This action cannot be undone.",
+            [
+              { text: "Cancel", style: "cancel" },
+              { text: "Delete", style: "destructive", onPress: deletePackingList },
+            ]
+          );
+        }}
+      >
+        <Text style={styles.deleteButtonText}>Delete Trip</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -244,6 +278,18 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   saveButtonText: { color: "white", fontSize: 18, fontWeight: "bold" },
+  deleteButton: {
+    backgroundColor: "#EF4444",
+    paddingVertical: 12,
+    borderRadius: 25,
+    alignItems: "center",
+    marginBottom: 40,
+  },
+  deleteButtonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
 });
 
 export default PackingList;
