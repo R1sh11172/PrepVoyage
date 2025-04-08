@@ -13,6 +13,9 @@ import {
 } from "react-native";
 import { Search, ChevronRight } from "lucide-react-native";
 import { useRouter } from "expo-router"; // Import useRouter
+import Constants from 'expo-constants';
+
+const locationIq = Constants.expoConfig?.extra?.locationIq;
 
 const { width, height } = Dimensions.get("window");
 
@@ -42,7 +45,7 @@ const SearchScreen = () => {
     if (searchQuery.length > 2) {
       setLoading(true);
       fetch(
-        `https://api.locationiq.com/v1/autocomplete?key=pk.1e0d88588ac16b89ac1c0a31566b040f&q=${searchQuery}&limit=5&dedupe=1&`
+        `https://api.locationiq.com/v1/autocomplete?key=${locationIq}&q=${searchQuery}&limit=5&dedupe=1&`
       )
         .then((response) => response.json())
         .then((data) => {

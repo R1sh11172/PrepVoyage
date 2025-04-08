@@ -85,6 +85,7 @@ export default function MyTripsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>My Trips</Text>
+      <View style={styles.separator} />
 
       {loading ? (
         <ActivityIndicator size="large" color="#00796B" />
@@ -109,7 +110,12 @@ const styles = StyleSheet.create({
   tripOverlay: { backgroundColor: "rgba(0,0,0,0.4)", padding: 10, borderRadius: 15 },
   tripTitle: { fontSize: 18, fontWeight: "bold", color: "#fff" },
   tripDates: { fontSize: 14, color: "#fff" },
-
+  separator: {
+    height: 2,
+    backgroundColor: "#f28b82",
+    marginBottom: 24,
+    width: "100%",
+  },
   generateButton: {
     backgroundColor: "#14B8A6",
     paddingVertical: 12,
