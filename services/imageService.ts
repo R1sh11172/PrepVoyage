@@ -1,6 +1,9 @@
 import axios from "axios";
+import Constants from 'expo-constants';
 
-const UNSPLASH_ACCESS_KEY = "Tlo8Jro_cF1Z2aqd60mSSz4Im2FoP2HddJzdIN6JIrQ";
+const unsplashKey = Constants.expoConfig?.extra?.unsplashKey;
+
+const UNSPLASH_ACCESS_KEY = unsplashKey || "YOUR_UNSPLASH_ACCESS_KEY";
 
 const fallbackImages = [
   "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",

@@ -1,6 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import Constants from 'expo-constants';
 
-const genAI = new GoogleGenerativeAI("AIzaSyBELgj00cZNwU3lewCRea5jOzT8FdIGSuQ");
+const geminiKey = Constants.expoConfig?.extra?.geminiKey;
+
+const genAI = new GoogleGenerativeAI(geminiKey)
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 export async function generatePackingList(destination: string, startDate: string, endDate: string, activities: string[], additionalInfo: string) {
@@ -26,11 +29,11 @@ export async function generatePackingList(destination: string, startDate: string
         const result = await model.generateContent(prompt);
         const responseText = await result.response.text();
 
-        console.log("Response Text", responseText)
+        // console.log("Response Text", responseText)
 
         const updatedresponseText = cleanJsonString(responseText) // Clean the response to remove any unwanted formatting
 
-        console.log(updatedresponseText)
+        // console.log(updatedresponseText)
 
         // Split response into list items
         // return responseText.split("\n").filter(item => item.trim() !== "");
