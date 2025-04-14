@@ -8,13 +8,14 @@ import {
   ScrollView,
   Dimensions,
   Platform,
+  Modal,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
 
-const { width, height } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
 
 const SelectDatesScreen = () => {
   const router = useRouter();
@@ -34,106 +35,184 @@ const SelectDatesScreen = () => {
       : "";
   };
 
-  const onChangeDate = (
+  const handleAndroidDateChange = (
     setDate: React.Dispatch<React.SetStateAction<Date | null>>,
     setShowPicker: React.Dispatch<React.SetStateAction<boolean>>
   ) => (event: any, selectedDate?: Date) => {
-    setShowPicker(Platform.OS === "ios"); // Keep the picker open for iOS until dismissed manually
+    setShowPicker(false);
     if (selectedDate) {
       setDate(selectedDate);
     }
   };
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Title */}
-      <Text style={styles.title}>Select your dates</Text>
+    <View style={{ flex: 1, backgroundColor: "white" }}>
+      {/* Scrollable Content */}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.title}>Select your dates</Text>
 
-      {/* Start Date */}
-      <View style={styles.inputWrapper}>
-        <Text style={styles.label}>Start Date</Text>
-        <TouchableOpacity
-          style={styles.inputContainer}
-          onPress={() => setShowStartPicker(true)}
-        >
-          <FontAwesome name="calendar" size={22} color="#F87171" style={styles.icon} />
-          <TextInput
-            style={styles.textInput}
-            placeholder="MM/DD/YYYY"
-            placeholderTextColor="#6B7280"
-            value={formatDate(startDate)}
-            editable={false}
-          />
-        </TouchableOpacity>
-        {showStartPicker && (
-          <DateTimePicker
-            value={startDate || new Date()}
-            mode="date"
-            display="default"
-            onChange={onChangeDate(setStartDate, setShowStartPicker)}
-          />
-        )}
-      </View>
+        {/* Start Date */}
+        <View style={styles.inputWrapper}>
+          <Text style={styles.label}>Start Date</Text>
+          <TouchableOpacity
+            style={styles.inputContainer}
+            onPress={() => setShowStartPicker(true)}
+            activeOpacity={0.8}
+          >
+            <FontAwesome name="calendar" size={22} color="#F87171" style={styles.icon} />
+            <TextInput
+              style={styles.textInput}
+              placeholder="MM/DD/YYYY"
+              placeholderTextColor="#6B7280"
+              value={formatDate(startDate)}
+              editable={false}
+              pointerEvents="none"
+            />
+          </TouchableOpacity>
+        </View>
 
-      {/* End Date */}
-      <View style={styles.inputWrapper}>
-        <Text style={styles.label}>End Date</Text>
-        <TouchableOpacity
-          style={styles.inputContainer}
-          onPress={() => setShowEndPicker(true)}
-        >
-          <FontAwesome name="calendar" size={22} color="#F87171" style={styles.icon} />
-          <TextInput
-            style={styles.textInput}
-            placeholder="MM/DD/YYYY"
-            placeholderTextColor="#6B7280"
-            value={formatDate(endDate)}
-            editable={false}
-          />
-        </TouchableOpacity>
-        {showEndPicker && (
-          <DateTimePicker
-            value={endDate || new Date()}
-            mode="date"
-            display="default"
-            onChange={onChangeDate(setEndDate, setShowEndPicker)}
-          />
-        )}
-      </View>
+        {/* End Date */}
+        <View style={styles.inputWrapper}>
+          <Text style={styles.label}>End Date</Text>
+          <TouchableOpacity
+            style={styles.inputContainer}
+            onPress={() => setShowEndPicker(true)}
+          >
+            <FontAwesome
+              name="calendar"
+              size={22}
+              color="#F87171"
+              style={styles.icon}
+            />
+            <TextInput
+              style={styles.textInput}
+              placeholder="MM/DD/YYYY"
+              placeholderTextColor="#6B7280"
+              value={formatDate(endDate)}
+              editable={false}
+            />
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
 
-      {/* Progress Bar */}
-      <View style={styles.progressBarContainer}>
-        <View style={[styles.progressBar, { width: "50%" }]} />
-      </View>
+      {/* Android Pickers */}
+      {showStartPicker && Platform.OS === "android" && (
+        <DateTimePicker
+          value={startDate || new Date()}
+          mode="date"
+          display="default"
+          onChange={handleAndroidDateChange(setStartDate, setShowStartPicker)}
+          minimumDate={new Date()}
+          maximumDate={endDate || undefined}
+        />
+      )}
 
-      {/* Back & Next Buttons */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.buttonText}>Back</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.nextButton, (!startDate || !endDate) && styles.disabledButton]}
-          onPress={() =>
-            router.push({
-              pathname: "/Activities",
-              params: { destination, startDate: formatDate(startDate), endDate: formatDate(endDate) },
-            })
-          }
-          disabled={!startDate || !endDate}
-        >
-          <Text style={styles.buttonText}>Next</Text>
-        </TouchableOpacity>
+      {showEndPicker && Platform.OS === "android" && (
+        <DateTimePicker
+          value={endDate || new Date()}
+          mode="date"
+          display="default"
+          onChange={handleAndroidDateChange(setEndDate, setShowEndPicker)}
+          minimumDate={startDate || new Date()}
+        />
+      )}
+
+      {/* iOS Modal Pickers */}
+      {Platform.OS === "ios" && (
+        <Modal visible={showStartPicker} transparent={true} animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.pickerWrapper}>
+              <DateTimePicker
+                value={startDate || new Date()}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setStartDate(selectedDate || startDate);
+                }}
+                minimumDate={new Date()}
+                maximumDate={endDate || undefined}
+              />
+              <TouchableOpacity
+                style={styles.modalDoneButton}
+                onPress={() => setShowStartPicker(false)}
+              >
+                <Text style={styles.modalDoneText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      {Platform.OS === "ios" && (
+        <Modal visible={showEndPicker} transparent={true} animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.pickerWrapper}>
+              <DateTimePicker
+                value={endDate || new Date()}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setEndDate(selectedDate || endDate);
+                }}
+                minimumDate={startDate || new Date()}
+              />
+              <TouchableOpacity
+                style={styles.modalDoneButton}
+                onPress={() => setShowEndPicker(false)}
+              >
+                <Text style={styles.modalDoneText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      {/* Fixed Footer */}
+      <View style={styles.footer}>
+        <View style={styles.progressBarContainer}>
+          <View style={[styles.progressBar, { width: "50%" }]} />
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.buttonText}>Back</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.nextButton,
+              (!startDate || !endDate) && styles.disabledButton,
+            ]}
+            onPress={() =>
+              router.push({
+                pathname: "/Activities",
+                params: {
+                  destination,
+                  startDate: formatDate(startDate),
+                  endDate: formatDate(endDate),
+                },
+              })
+            }
+            disabled={!startDate || !endDate}
+          >
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "white",
+  scrollContent: {
     paddingHorizontal: 24,
     paddingTop: height * 0.12,
+    paddingBottom: 200,
   },
   title: {
     textAlign: "center",
@@ -171,13 +250,25 @@ const styles = StyleSheet.create({
     color: "#333",
     fontFamily: "Quicksand",
   },
+  footer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "white",
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 30,
+    borderTopWidth: 1,
+    borderTopColor: "#E5E7EB",
+  },
   progressBarContainer: {
     width: "100%",
     height: 4,
     backgroundColor: "#E5E7EB",
-    marginTop: height * 0.28,
     borderRadius: 2,
     overflow: "hidden",
+    marginBottom: 20,
   },
   progressBar: {
     height: "100%",
@@ -186,7 +277,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 40,
     paddingHorizontal: 10,
   },
   backButton: {
@@ -209,6 +299,29 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 16,
     fontFamily: "Quicksand",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+  pickerWrapper: {
+    backgroundColor: "white",
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalDoneButton: {
+    marginTop: 10,
+    backgroundColor: "#14B8A6",
+    borderRadius: 20,
+    padding: 12,
+    alignItems: "center",
+  },
+  modalDoneText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 16,
   },
 });
 
