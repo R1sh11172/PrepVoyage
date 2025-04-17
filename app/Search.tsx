@@ -73,80 +73,90 @@ const SearchScreen = () => {
         setShowDropdown(false);
       }}
     >
-      <View style={styles.container}>
-        <Text style={styles.title}>Choose your next destination</Text>
-
-        {/* Search Bar */}
-        <View style={styles.searchBarContainer}>
-          <View style={styles.searchBar}>
-            <TextInput
-              placeholder="Search"
-              style={styles.searchInput}
-              placeholderTextColor="#6B7280"
-              value={searchQuery}
-              onChangeText={(text) => {
-                setSearchQuery(text);
-                setShowDropdown(true);
-              }}
-              onFocus={() => setShowDropdown(true)}
-            />
-            <Search color="#F87171" size={22} />
-          </View>
-
-          {/* Autocomplete Dropdown */}
-          {showDropdown && locations.length > 0 && (
-            <View style={styles.dropdown}>
-              <FlatList
-                data={locations}
-                keyExtractor={(item) => item}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.dropdownItem}
-                    onPress={() => {
-                      setSelectedDestination(item);
-                      setSearchQuery(item);
-                      setShowDropdown(false);
-                    }}
-                  >
-                    <Text style={styles.dropdownText}>{item}</Text>
-                  </TouchableOpacity>
-                )}
+      <View style={{ flex: 1, backgroundColor: "white" }}>
+        <View style={styles.content}>
+          <Text style={styles.title}>Choose your next destination</Text>
+  
+          {/* Search Bar */}
+          <View style={styles.searchBarContainer}>
+            <View style={styles.searchBar}>
+              <TextInput
+                placeholder="Search"
+                style={styles.searchInput}
+                placeholderTextColor="#6B7280"
+                value={searchQuery}
+                onChangeText={(text) => {
+                  setSearchQuery(text);
+                  setShowDropdown(true);
+                }}
+                onFocus={() => setShowDropdown(true)}
               />
+              <Search color="#F87171" size={22} />
             </View>
-          )}
+  
+            {/* Autocomplete Dropdown */}
+            {showDropdown && locations.length > 0 && (
+              <View style={styles.dropdown}>
+                <FlatList
+                  data={locations}
+                  keyExtractor={(item) => item}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.dropdownItem}
+                      onPress={() => {
+                        setSelectedDestination(item);
+                        setSearchQuery(item);
+                        setShowDropdown(false);
+                      }}
+                    >
+                      <Text style={styles.dropdownText}>{item}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
+            )}
+          </View>
+  
+          {loading && <ActivityIndicator size="small" color="#14B8A6" />}
+  
+          {/* Suggested Popular Destinations */}
+          <View style={styles.destinationContainer}>
+            {defaultDestinations.map((destination) => (
+              <TouchableOpacity
+                key={destination}
+                style={styles.destinationButton}
+                onPress={() => {
+                  setSelectedDestination(destination);
+                  setSearchQuery(destination);
+                  setShowDropdown(false);
+                }}
+              >
+                <Text style={styles.destinationText}>{destination}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
-
-        {loading && <ActivityIndicator size="small" color="#14B8A6" />}
-
-        {/* Suggested Popular Destinations */}
-        <View style={styles.destinationContainer}>
-          {defaultDestinations.map((destination) => (
-            <TouchableOpacity
-              key={destination}
-              style={styles.destinationButton}
-              onPress={() => {
-                setSelectedDestination(destination);
-                setSearchQuery(destination);
-                setShowDropdown(false);
-              }}
-            >
-              <Text style={styles.destinationText}>{destination}</Text>
-            </TouchableOpacity>
-          ))}
+  
+        {/* Fixed Footer */}
+        <View style={styles.footer}>
+          <View style={styles.progressBarContainer}>
+            <View style={[styles.progressBar, { width: `${progress * 100}%` }]} />
+          </View>
+  
+          <TouchableOpacity
+            style={[
+              styles.nextButton,
+              !selectedDestination && styles.disabledButton,
+            ]}
+            onPress={handleNext}
+            disabled={!selectedDestination}
+          >
+            <Text style={styles.nextButtonText}>Next</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Progress Bar */}
-        <View style={styles.progressBarContainer}>
-          <View style={[styles.progressBar, { width: `${progress * 100}%` }]} />
-        </View>
-
-        {/* Next Button */}
-        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-          <Text style={styles.nextButtonText}>Next</Text>
-        </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
-  );
+  );  
 };
 
 const styles = StyleSheet.create({
@@ -229,36 +239,60 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontFamily: "Quicksand",
   },
-  progressBarContainer: {
-    width: "100%",
-    height: 4,
-    backgroundColor: "#E5E7EB",
-    marginTop: height * 0.1,
-    borderRadius: 2,
-    overflow: "hidden",
-  },
-  progressBar: {
-    height: "100%",
-    backgroundColor: "#14B8A6",
-  },
-  nextButton: {
-    position: "absolute",
-    bottom: 70,
-    right: 30,
-    backgroundColor: "#14B8A6",
+  content: {
+    flex: 1,
     paddingHorizontal: 24,
+    paddingTop: height * 0.12,
+    paddingBottom: 200, // space for footer
+  },
+  
+  footer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "white",
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 30,
+    borderTopWidth: 1,
+    borderTopColor: "#E5E7EB",
+  },
+  
+  nextButton: {
+    backgroundColor: "#14B8A6",
+    paddingHorizontal: 30,
     paddingVertical: 12,
     borderRadius: 25,
-    flexDirection: "row",
     alignItems: "center",
+    marginTop: 16,
   },
+  
+  disabledButton: {
+    backgroundColor: "#A7A7A7",
+  },
+  
   nextButtonText: {
     color: "white",
     fontWeight: "600",
     fontSize: 16,
     fontFamily: "Quicksand",
-    marginRight: 8,
   },
+  
+  progressBarContainer: {
+    width: "100%",
+    height: 4,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 2,
+    overflow: "hidden",
+    marginBottom: 20,
+  },
+  
+  progressBar: {
+    height: "100%",
+    backgroundColor: "#14B8A6",
+  },
+  
 });
 
 export default SearchScreen;

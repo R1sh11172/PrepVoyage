@@ -7,9 +7,9 @@ import {
   Dimensions,
   ScrollView,
 } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router"; // Using useRouter for navigation
+import { useLocalSearchParams, useRouter } from "expo-router";
 
-const { width, height } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
 
 const activitiesList = [
   "Food",
@@ -20,92 +20,105 @@ const activitiesList = [
   "Beaches",
   "Nature",
   "Hidden Gems",
+  "Museums",
+  "Shopping",
+  "Adventure",
+  "Nightlife",
+  "Outdoor Activities",
+  "Cultural Experiences",
 ];
 
 const ActivitiesScreen = () => {
   const router = useRouter();
-  const [selectedActivities, setSelectedActivities] = useState([]);
+  const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const { destination, startDate, endDate } = useLocalSearchParams();
 
-  const toggleSelection = (activity) => {
-    setSelectedActivities(
-      (prev) =>
-        prev.includes(activity)
-          ? prev.filter((item) => item !== activity) // Deselect if already selected
-          : [...prev, activity] // Select if not already selected
+  const toggleSelection = (activity: string) => {
+    setSelectedActivities((prev) =>
+      prev.includes(activity)
+        ? prev.filter((item) => item !== activity)
+        : [...prev, activity]
     );
   };
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Title */}
-      <Text style={styles.title}>What do you want to do?</Text>
+    <View style={{ flex: 1, backgroundColor: "white" }}>
+      {/* Scrollable Content */}
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.title}>What do you want to do?</Text>
 
-      {/* Activity Buttons */}
-      <View style={styles.activitiesContainer}>
-        {activitiesList.map((activity) => (
-          <TouchableOpacity
-            key={activity}
-            style={[
-              styles.activityButton,
-              selectedActivities.includes(activity) &&
-                styles.selectedActivityButton,
-            ]}
-            onPress={() => toggleSelection(activity)}
-          >
-            <Text
+        <View style={styles.activitiesContainer}>
+          {activitiesList.map((activity) => (
+            <TouchableOpacity
+              key={activity}
               style={[
-                styles.activityText,
+                styles.activityButton,
                 selectedActivities.includes(activity) &&
-                  styles.selectedActivityText,
+                  styles.selectedActivityButton,
               ]}
+              onPress={() => toggleSelection(activity)}
             >
-              {activity}
-            </Text>
+              <Text
+                style={[
+                  styles.activityText,
+                  selectedActivities.includes(activity) &&
+                    styles.selectedActivityText,
+                ]}
+              >
+                {activity}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+
+      {/* Fixed Footer */}
+      <View style={styles.footer}>
+        <View style={styles.progressBarContainer}>
+          <View style={[styles.progressBar, { width: "75%" }]} />
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.buttonText}>Back</Text>
           </TouchableOpacity>
-        ))}
+          <TouchableOpacity
+            style={[
+              styles.nextButton,
+              selectedActivities.length === 0 && styles.disabledButton,
+            ]}
+            onPress={() =>
+              router.push({
+                pathname: "/AdditionalInfo",
+                params: {
+                  destination,
+                  startDate,
+                  endDate,
+                  activities: selectedActivities,
+                },
+              })
+            }
+            disabled={selectedActivities.length === 0}
+          >
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-
-      {/* Progress Bar */}
-      <View style={styles.progressBarContainer}>
-        <View style={[styles.progressBar, { width: "75%" }]} />
-      </View>
-
-      {/* Back & Next Buttons */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.buttonText}>Back</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.nextButton}
-          onPress={() =>
-            router.push({
-              pathname: "/AdditionalInfo",
-              params: {
-                destination,
-                startDate,
-                endDate,
-                activities: selectedActivities,
-              },
-            })
-          }
-        >
-          <Text style={styles.buttonText}>Next</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "white",
+  content: {
     paddingHorizontal: 24,
     paddingTop: height * 0.12,
+    paddingBottom: 200, // space for fixed footer
   },
   title: {
     textAlign: "center",
@@ -141,13 +154,25 @@ const styles = StyleSheet.create({
   selectedActivityText: {
     color: "white",
   },
+  footer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "white",
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 30,
+    borderTopWidth: 1,
+    borderTopColor: "#E5E7EB",
+  },
   progressBarContainer: {
     width: "100%",
     height: 4,
     backgroundColor: "#E5E7EB",
-    marginTop: height * 0.24,
     borderRadius: 2,
     overflow: "hidden",
+    marginBottom: 20,
   },
   progressBar: {
     height: "100%",
@@ -156,7 +181,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 40,
     paddingHorizontal: 10,
   },
   backButton: {
@@ -170,6 +194,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     paddingVertical: 12,
     borderRadius: 25,
+  },
+  disabledButton: {
+    backgroundColor: "#A7A7A7",
   },
   buttonText: {
     color: "white",
