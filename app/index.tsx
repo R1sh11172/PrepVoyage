@@ -22,8 +22,9 @@ export default function App() {
   const handleRegister = async () => {
     try {
       const user = await register(email, password);
+
       Alert.alert("Success", `User registered: ${user.email}`);
-      router.replace("/Search");
+      router.replace("/(tabs)/Home");
     } catch (error) {
       Alert.alert("Error", (error as Error).message);
     }
@@ -32,13 +33,14 @@ export default function App() {
   const handleLogin = async () => {
     try {
       const user = await login(email, password);
+
       Alert.alert("Success", `Welcome back: ${user.email}`);
-      router.replace("/Home");
+      router.replace("/(tabs)/Home");
     } catch (error) {
       Alert.alert("Error", (error as Error).message);
     }
   };
-  console.log("App component rendered");
+
   return (
     <View style={styles.container}>
       {/* Logo */}

@@ -21,7 +21,7 @@ export default function MyTripsScreen() {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState({}); // Store images per trip
-  console.log("home");
+
   useEffect(() => {
     const fetchTrips = async () => {
       try {
