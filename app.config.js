@@ -7,6 +7,7 @@ export default {
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/pv_updated_logo.png",
+    platforms: ["ios"],
     splash: {
       image: "./assets/pv_updated_logo.png",
       resizeMode: "contain",
@@ -17,7 +18,9 @@ export default {
     },
     assetBundlePatterns: ["**/*"],
     ios: {
-      supportsTablet: true
+      supportsTablet: true,
+      bundleIdentifier: "com.emilyliew.prepvoyage",
+      googleServicesFile: "./ios/GoogleService-Info.plist"
     },
     android: {
       adaptiveIcon: {

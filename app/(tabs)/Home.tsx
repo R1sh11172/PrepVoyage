@@ -35,7 +35,9 @@ export default function MyTripsScreen() {
 
         // Fetch images for each trip dynamically
         tripsArray.forEach(async (trip) => {
-          const imageUrl = await fetchDestinationImage(getSubstringBeforeComma(trip.destination));
+          const imageUrl = await fetchDestinationImage(
+            getSubstringBeforeComma(trip.destination)
+          );
           setImages((prevImages) => ({ ...prevImages, [trip.id]: imageUrl }));
         });
       } catch (error) {
@@ -61,19 +63,27 @@ export default function MyTripsScreen() {
   };
 
   function getSubstringBeforeComma(address: string): string {
-    const index = address.indexOf(',');
+    const index = address.indexOf(",");
     return index !== -1 ? address.substring(0, index) : address;
   }
 
   const renderTrip = ({ item }) => (
-    <TouchableOpacity style={styles.tripCard} onPress={() => handleTripPress(item)}>
+    <TouchableOpacity
+      style={styles.tripCard}
+      onPress={() => handleTripPress(item)}
+    >
       <ImageBackground
-        source={{ uri: images[item.id] || "https://source.unsplash.com/featured/?travel" }} // Fallback image
+        source={{
+          uri:
+            images[item.id] || "https://source.unsplash.com/featured/?travel",
+        }} // Fallback image
         style={styles.tripImage}
         imageStyle={{ borderRadius: 15 }}
       >
         <View style={styles.tripOverlay}>
-          <Text style={styles.tripTitle}>{getSubstringBeforeComma(item.destination).toUpperCase()}</Text>
+          <Text style={styles.tripTitle}>
+            {getSubstringBeforeComma(item.destination).toUpperCase()}
+          </Text>
           <Text style={styles.tripDates}>
             {item.startDate} - {item.endDate}
           </Text>
@@ -90,11 +100,18 @@ export default function MyTripsScreen() {
       {loading ? (
         <ActivityIndicator size="large" color="#00796B" />
       ) : (
-        <FlatList data={trips} renderItem={renderTrip} keyExtractor={(item) => item.id} />
+        <FlatList
+          data={trips}
+          renderItem={renderTrip}
+          keyExtractor={(item) => item.id}
+        />
       )}
 
       {/* Generate Button */}
-      <TouchableOpacity style={styles.generateButton} onPress={() => router.push("/Search")}>
+      <TouchableOpacity
+        style={styles.generateButton}
+        onPress={() => router.push("/Search")}
+      >
         <Text style={styles.generateText}>Generate</Text>
         <Text style={styles.plusSymbol}>+</Text>
       </TouchableOpacity>
@@ -103,11 +120,25 @@ export default function MyTripsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 20, marginBottom: 20},
-  title: { fontSize: 28, fontWeight: "bold", color: "#00796B", marginBottom: 20 },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    padding: 20,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#00796B",
+    marginBottom: 20,
+  },
   tripCard: { marginBottom: 15, borderRadius: 15, overflow: "hidden" },
   tripImage: { width: "100%", height: 120, justifyContent: "flex-end" },
-  tripOverlay: { backgroundColor: "rgba(0,0,0,0.4)", padding: 10, borderRadius: 15 },
+  tripOverlay: {
+    backgroundColor: "rgba(0,0,0,0.4)",
+    padding: 10,
+    borderRadius: 15,
+  },
   tripTitle: { fontSize: 18, fontWeight: "bold", color: "#fff" },
   tripDates: { fontSize: 14, color: "#fff" },
   separator: {
@@ -126,11 +157,20 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   generateText: { color: "white", fontSize: 18, fontWeight: "bold" },
-  plusSymbol: { color: "white", fontSize: 22, fontWeight: "bold", marginLeft: 5 },
+  plusSymbol: {
+    color: "white",
+    fontSize: 22,
+    fontWeight: "bold",
+    marginLeft: 5,
+  },
 
-  bottomNav: { flexDirection: "row", justifyContent: "space-around", backgroundColor: "#00796B", padding: 12, borderRadius: 10 },
+  bottomNav: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    backgroundColor: "#00796B",
+    padding: 12,
+    borderRadius: 10,
+  },
   navItem: { paddingVertical: 5 },
   navText: { color: "white", fontSize: 14, fontWeight: "bold" },
 });
-
-
